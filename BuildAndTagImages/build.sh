@@ -52,7 +52,7 @@ function buildDockerImage()
         done < "$CONFIG_DIR/${STACK}VersionTemplateMap.txt"
     else
         # KuduLite Image, add single image support
-        local ImageRepoTagUpperCase="${TEST_IMAGE_REPO_NAME}/public/appsvc/${STACK}:${PIPELINE_BUILD_NUMBER}"
+        local ImageRepoTagUpperCase="${WAWS_IMAGE_REPO_NAME}/public/appsvc/${STACK}:${PIPELINE_BUILD_NUMBER}"
         local ImageRepoTag="${ImageRepoTagUpperCase,,}"
         local appSvcDockerfilePath="${SYSTEM_ARTIFACTS_DIR}/${STACK}/GitRepo/kudu/Dockerfile"
         echo "Listing artifacts dir"

@@ -6,7 +6,7 @@
 
 set -e
 
-declare -r ACR_NAME='appsvcdevacr'
+declare -r ACR_NAME='wawsimages'
 declare -r AZ_NAME_OUTPUT_PARAMS="--name $ACR_NAME --output tsv"
 
 if [[ "$1" == "--yes" ]]; then
