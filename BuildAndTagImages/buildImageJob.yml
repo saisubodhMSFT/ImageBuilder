@@ -1,6 +1,6 @@
 parameters:
-  ascName: AppSvcDevACR
-  acrName: appsvcdevacr.azurecr.io
+  ascName: WAWS_Container_Images
+  acrName: wawsimages.azurecr.io
   stackName: ""
 
 steps:
