@@ -50,7 +50,7 @@ RUN sed -i 's!User ${APACHE_RUN_GROUP}!Group www-data!g' /etc/apache2/apache2.co
 RUN { \
    echo 'DocumentRoot /home/site/wwwroot'; \
    echo 'DirectoryIndex default.htm default.html index.htm index.html index.php hostingstart.html'; \
-   echo 'CustomLog /dev/stderr combined'; \
+   echo 'CustomLog /dev/null combined'; \
    echo '<FilesMatch "\.(?i:ph([[p]?[0-9]*|tm[l]?))$">'; \
    echo '   SetHandler application/x-httpd-php'; \
    echo '</FilesMatch>'; \
