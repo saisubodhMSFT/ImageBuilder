@@ -27,11 +27,16 @@ function buildDockerImage()
             IFS='|' read -ra STACK_TAGS_ARR <<< "$STACK_TAGS"
             for TAG in "${STACK_TAGS_ARR[@]}"
             do
-                # Build Image Tags are converted to lower case because docker doesn't accept upper case tags
-                local MCRRepoTagUpperCase="${WAWS_IMAGE_REPO_NAME}/public/appsvc/${STACK}:${TAG}_${PIPELINE_BUILD_NUMBER}"
+		local STACK_MOD=$STACK
+                if [[ $STACK = "php-xdebug" ]]
+                then
+                    STACK_MOD="php"
+                fi 
+		# Build Image Tags are converted to lower case because docker doesn't accept upper case tags
+                local MCRRepoTagUpperCase="${WAWS_IMAGE_REPO_NAME}/public/appsvc/${STACK_MOD}:${TAG}_${PIPELINE_BUILD_NUMBER}"
                 local MCRRepoTag="${MCRRepoTagUpperCase,,}"
                 local appSvcDockerfilePath="${SYSTEM_ARTIFACTS_DIR}/${STACK}/GitRepo/${STACK_VERSION}/Dockerfile" 
-                local BuildVerRepoTagUpperCase="${WAWS_IMAGE_REPO_NAME}/${STACK}:${TAG}_${PIPELINE_BUILD_NUMBER}"
+                local BuildVerRepoTagUpperCase="${WAWS_IMAGE_REPO_NAME}/${STACK_MOD}:${TAG}_${PIPELINE_BUILD_NUMBER}"
                 local BuildVerRepoTag="${BuildVerRepoTagUpperCase,,}"
 
                 echo "Listing artifacts dir"
