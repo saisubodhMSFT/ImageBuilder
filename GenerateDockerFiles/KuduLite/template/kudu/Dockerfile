@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/oryx/build:20200629.1 as main
+FROM BASE_IMAGE_NAME_PLACEHOLDER as main
 
 ENV DEBIAN_FRONTEND noninteractive
 
