@@ -39,8 +39,7 @@ RUN apt-get install -y ssh \
    && sed -i '/^#Port* /s/^#//' /etc/ssh/sshd_config \
    && sed -i '/^#PermitRootLogin* /s/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
    && sed -i '/^#PrintLastLog* /s/^#PrintLastLog yes/PrintLastLog no/' /etc/ssh/sshd_config \
-   && chmod -R 0644 /etc/update-motd.d/ \
-   && echo "root:Docker!" | chpasswd
+   && chmod -R 0644 /etc/update-motd.d/
 
 COPY webssh.zip ssh /tmp/
 
@@ -61,7 +60,7 @@ RUN mkdir -p /opt/Kudu/local \
   && mv /tmp/ssh /usr/bin/ssh \
   && chown root:root /usr/bin/ssh \
   && chmod 755 /usr/bin/ssh \
-  && chmod -R 777 /home \ 
+  && chmod -R 777 /home \
   && rm -rf /tmp/*
 
 RUN oryx prep --skip-detection --platforms-and-versions "dotnet=2.2.8,nodejs=10.19.0"
@@ -102,6 +101,10 @@ RUN benv node=10.19.0 npm install -g kudusync
 RUN benv node=10.19.0 npm install pm2@latest -g
 
 ENV KUDU_WEBSSH_PORT=3000
+
+# Default App Settings for Main App Container SSH
+ENV WEBSITE_SSH_USER=root
+ENV WEBISTE_SSH_PASSWORD=Docker!
 
 # Copy custom scripts
 RUN mkdir /custom_scripts

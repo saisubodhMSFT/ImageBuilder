@@ -1,4 +1,4 @@
-FROM BASE_IMAGE_NAME_PLACEHOLDER as main
+FROM mcr.microsoft.com/oryx/build:20200629.1 as main
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -77,8 +77,7 @@ RUN apt-get install -y ssh \
    && sed -i '/^#Port* /s/^#//' /etc/ssh/sshd_config \
    && sed -i '/^#PermitRootLogin* /s/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
    && sed -i '/^#PrintLastLog* /s/^#PrintLastLog yes/PrintLastLog no/' /etc/ssh/sshd_config \
-   && chmod -R 0644 /etc/update-motd.d/ \
-   && echo "root:Docker!" | chpasswd
+   && chmod -R 0644 /etc/update-motd.d/
 
 COPY webssh.zip ssh /tmp/
 
@@ -138,6 +137,10 @@ RUN ln -s /opt/nodejs/9/lib/node_modules/npm/bin/npm-cli.js /usr/bin/npm-cli.js
 ENV PATH=$PATH:/opt/nodejs/9/bin
 
 ENV KUDU_WEBSSH_PORT=3000
+
+# Default App Settings for Main App Container SSH
+ENV WEBSITE_SSH_USER=root
+ENV WEBISTE_SSH_PASSWORD=Docker!
 
 EXPOSE 8181
 
