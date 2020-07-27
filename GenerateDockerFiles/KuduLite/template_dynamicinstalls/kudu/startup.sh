@@ -39,7 +39,7 @@ USER_PASSWORD=`head /dev/urandom | tr -dc a-z0-9 | head -c 12 ; echo ''`
 
 # Change the password of the kudu_user
 echo "$USER_NAME:$USER_PASSWORD" | chpasswd
-+usermod -d /home $USER_NAME
+usermod -d /home $USER_NAME
 mkdir -p /tmp/BuildScriptGenerator
 
 groupadd -g $GROUP_ID $GROUP_NAME
@@ -49,7 +49,7 @@ useradd -u $USER_ID -g $GROUP_NAME $USER_NAME
 #chown -R $USER_NAME:$GROUP_NAME /tmp/zipdeploy
 mkdir -p /home/LogFiles/webssh
 
-/bin/bash -c "benv node=9 npm=6 WEBSITE_SSH_USER=$WEBSITE_SSH_USER WEBSITE_SSH_PASSWORD=$WEBSITE_SSH_PASSWORD USER_NAME=$USER_NAME USER_PASSWORD=$USER_PASSWORD pm2 start /opt/webssh/index.js -o /home/LogFiles/webssh/pm2.log -e /home/LogFiles/webssh/pm2.err &"
+/bin/bash -c "benv node=10.19.0 WEBSITE_SSH_USER=$WEBSITE_SSH_USER WEBSITE_SSH_PASSWORD=$WEBSITE_SSH_PASSWORD USER_NAME=$USER_NAME USER_PASSWORD=$USER_PASSWORD pm2 start /opt/webssh/index.js -o /home/LogFiles/webssh/pm2.log -e /home/LogFiles/webssh/pm2.err &"
 export KUDU_RUN_USER="$USER_NAME"
 export HOME=/home
 export WEBSITE_SITE_NAME=$SITE_NAME
