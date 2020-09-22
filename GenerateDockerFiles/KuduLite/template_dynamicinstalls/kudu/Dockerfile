@@ -28,7 +28,7 @@ ENV NUGET_XMLDOC_MODE=skip
 ENV KUDU_WEBSSH_PORT=3000
 # Default App Settings for Main App Container SSH
 ENV WEBSITE_SSH_USER=root
-ENV WEBISTE_SSH_PASSWORD=Docker!
+ENV WEBSITE_SSH_PASSWORD=Docker!
 
 COPY webssh.zip ssh /tmp/
 COPY --from=build-env /kudu_commit.log /kudu_commit.log
