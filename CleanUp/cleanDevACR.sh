@@ -27,6 +27,11 @@ declare -r azQuery="[?timestamp<=\`$tsLimit\`].digest"
 
 for repo in "${REPOS[@]}"
 do
+    if [[ "$repo" == *"staticappsclient"* ]]; then
+        echo "Skipping staticappsclient image $repo"
+        continue
+    fi
+
 	echo "Fetching manifests in repository '$repo'..."
 	digests=(`az acr repository show-manifests $AZ_NAME_OUTPUT_PARAMS --repository $repo --orderby time_asc --query "$azQuery"`)
 
