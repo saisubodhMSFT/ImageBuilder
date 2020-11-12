@@ -3,6 +3,7 @@ LABEL maintainer="appsvc-images@microsoft.com"
 
 # Web Site Home
 ENV HOME_SITE "/home/site/wwwroot"
+ENV APP_PATH "/home/site/wwwroot"
 
 #Install system dependencies
 RUN apt-get update \
