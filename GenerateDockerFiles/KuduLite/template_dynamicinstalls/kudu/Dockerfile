@@ -56,10 +56,11 @@ RUN mkdir /opt/webssh \
   && chmod 755 /usr/bin/tcpping \
 # Enable SSH for Kudu Console
   && apt-get install -y ssh \
+# Replace ssh with wrapper script for CIFS mount permissions workaround
+  && mv /usr/bin/ssh /usr/bin/ssh.original \
   && mv /tmp/ssh /usr/bin/ssh \
   && chown root:root /usr/bin/ssh \
   && chmod 755 /usr/bin/ssh \
-  && echo "root:Docker!" | chpasswd \
   && sed -i '/^#Port* /s/^#//' /etc/ssh/sshd_config \
   && sed -i '/^#PermitRootLogin* /s/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
   && sed -i '/^#PrintLastLog* /s/^#PrintLastLog yes/PrintLastLog no/' /etc/ssh/sshd_config \
@@ -72,8 +73,6 @@ RUN mkdir /opt/webssh \
   && apt-get  install -y unzip --no-install-recommends \
 # Install pm2 and pm2-logrotate
   && mkdir -p /home/LogFiles \
-# Replace ssh with wrapper script for CIFS mount permissions workaround
-  && mv /usr/bin/ssh /usr/bin/ssh.original \
   && chmod -R 777 /home \
   && rm -rf /tmp/* \
   && rm -rf /var/lib/apt/lists/*
