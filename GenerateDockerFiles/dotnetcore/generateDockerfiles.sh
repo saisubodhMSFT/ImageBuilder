@@ -32,6 +32,8 @@ function generateDockerFiles()
         BASE_IMAGE_NAME="${BASE_IMAGE_REPO_NAME}:${BASE_IMAGE}-$BASE_IMAGE_VERSION_STREAM_FEED"
         CURR_VERSION_DIRECTORY="${APP_SVC_REPO_DIR}/${STACK_VERSION}"
         TARGET_DOCKERFILE="${CURR_VERSION_DIRECTORY}/Dockerfile"
+        TARGET_START_PAGE="${CURR_VERSION_DIRECTORY}/hostingstart.html"
+        BRANDING=".Net Core"
 
         echo "Generating App Service Dockerfile and dependencies for image '$BASE_IMAGE_NAME' in directory '$CURR_VERSION_DIRECTORY'..."
 
@@ -42,6 +44,13 @@ function generateDockerFiles()
 
         echo "Copying ${DIR}/SampleApps/${STACK_VERSION}/bin.zip to ${CURR_VERSION_DIRECTORY}..."
         cp "${DIR}/SampleApps/${STACK_VERSION}/bin.zip" "${CURR_VERSION_DIRECTORY}"
+
+        if [ "$BASE_IMAGE" == "5.0" ]; then
+            BRANDING=".Net"
+        fi
+
+        # Replace the DOTNET_BRANDING_PLACEHOLDER in hostinstart.html
+        sed -i "s|DOTNET_BRANDING_PLACEHOLDER|$BRANDING|g" "$TARGET_START_PAGE"
 
         # Replace placeholders, changing sed delimeter since '/' is used in path
         sed -i "s|BASE_IMAGE_NAME_PLACEHOLDER|$BASE_IMAGE_NAME|g" "$TARGET_DOCKERFILE"
