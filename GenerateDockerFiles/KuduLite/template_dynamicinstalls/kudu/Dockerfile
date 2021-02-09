@@ -33,6 +33,14 @@ ENV WEBSITE_SSH_PASSWORD=Docker!
 COPY webssh.zip ssh /tmp/
 COPY --from=build-env /kudu_commit.log /kudu_commit.log
 
+# NET5 - Root Certs Update ANT 92
+RUN echo "deb http://deb.debian.org/debian bullseye main" >> /etc/apt/sources.list \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends \
+     ca-certificates \
+  && rm -rf /var/lib/apt/lists/* \
+  && sed -i '$ d' /etc/apt/sources.list
+
 # Install webssh
 RUN mkdir /opt/webssh \
   && unzip /tmp/webssh.zip -d /opt/webssh \
