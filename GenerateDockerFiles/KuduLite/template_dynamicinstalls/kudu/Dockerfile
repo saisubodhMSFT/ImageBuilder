@@ -7,7 +7,7 @@ RUN apt install -y nodejs npm
 RUN cd /tmp \
     && git clone https://github.com/Azure-App-Service/KuduLite.git \
     && cd ./KuduLite \
-    && git checkout user/sanmeht/3.1Migration \
+    && git checkout user/sanemht/3.1MigrationRebased \
     && git log --format="%H" -n 1 > /kudu_commit.log \
     && cd ./Kudu.Services.Web \
     && dotnet publish -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=false -p:PublishTrimmed=true -p:PublishReadyToRun=true -o /opt/Kudu \
