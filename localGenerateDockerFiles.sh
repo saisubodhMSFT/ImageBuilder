@@ -33,6 +33,11 @@ GenerateDockerFiles/php/generateDockerfiles.sh $artifactStagingDirectory $baseIm
 chmod u+x GenerateDockerFiles/ruby/generateDockerfiles.sh
 GenerateDockerFiles/ruby/generateDockerfiles.sh $artifactStagingDirectory $appSvcGitUrl $configDir
 
+#Generate Wordpress images
+chmod u+x GenerateDockerFiles/wordpress/generateDockerfiles.sh
+GenerateDockerFiles/wordpress/generateDockerfiles.sh $artifactStagingDirectory $baseImageName $baseImageVersion $appSvcGitUrl $configDir
+
 # Generate KuduLite Docker Files
 chmod u+x GenerateDockerFiles/KuduLite/generateDockerfiles.sh 
 GenerateDockerFiles/KuduLite/generateDockerfiles.sh $artifactStagingDirectory $baseImageName $baseImageVersion $appSvcGitUrl $configDir
+
