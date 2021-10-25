@@ -11,7 +11,7 @@ rm -rf $artifactStagingDirectory
 
 # Generate Node Docker Files
 chmod u+x GenerateDockerFiles/node/generateDockerfiles.sh
-GenerateDockerFiles/node/generateDockerfiles.sh $artifactStagingDirectory $baseImageName $baseImageVersion $appSvcGitUrl $configDir
+GenerateDockerFiles/node/generateDockerfiles.sh $artifactStagingDirectory $configDir
 
 # Generate .NET Core Docker Files
 chmod u+x GenerateDockerFiles/dotnetcore/generateDockerfiles.sh 

@@ -4,7 +4,8 @@
 
 php -v
 
-AZURE_DETECTED=$WEBSITES_ENABLE_APP_SERVICE_STORAGE # if defined, assume the container is running on Azure
+# if defined, assume the container is running on Azure
+AZURE_DETECTED=$WEBSITES_ENABLE_APP_SERVICE_STORAGE
 
 setup_mariadb_data_dir(){
     test ! -d "$MARIADB_DATA_DIR" && echo "INFO: $MARIADB_DATA_DIR not found. creating ..." && mkdir -p "$MARIADB_DATA_DIR"
@@ -26,17 +27,19 @@ setup_mariadb_data_dir(){
 }
 
 start_mariadb(){
-    if test ! -e /run/mysqld/mysqld.sock; then
-        touch /run/mysqld/mysqld.sock
-    fi
-    chmod 777 /run/mysqld/mysqld.sock
-    mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
-    /usr/bin/mysqld --user=mysql &
-    #/etc/init.d/mariadb setup
-    #rc-service mariadb start
+    #Alternate Mariadb Setup
+    #if test ! -e /run/mysqld/mysqld.sock; then
+    #    touch /run/mysqld/mysqld.sock
+    #fi
+    #chmod 777 /run/mysqld/mysqld.sock
+    #mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+    #/usr/bin/mysqld --user=mysql &
+    
+    /etc/init.d/mariadb setup
+    rc-service mariadb start
 
-    #rm -f /tmp/mysql.sock
-    #ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
+    rm -f /tmp/mysql.sock
+    ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
 
     # create default database 'azurelocaldb'
     mysql -u root -e "CREATE DATABASE IF NOT EXISTS azurelocaldb; FLUSH PRIVILEGES;"
@@ -47,11 +50,12 @@ start_mariadb(){
 
     while [ $try_count -le 10 ]
     do 
-        if [ $port -eq 1 ] && [ $process -eq 1 ]; then 
+        if [ $port -eq 1 ] && [ $process -ge 1 ]; then 
             echo "INFO: MariaDB is running... "            
             break
         else            
             echo "INFO: Haven't found MariaDB Service this time, Wait 10s, try again..."
+            sleep 10s
             let try_count+=1
             port=`netstat -nlt|grep 3306|wc -l`
             process=`ps -ef |grep mysql|grep -v grep |wc -l`    
@@ -69,7 +73,7 @@ setup_phpmyadmin(){
     # rm -rf $PHPMYADMIN_SOURCE
     if [ ! $AZURE_DETECTED ]; then
         echo "INFO: NOT in Azure, chown for "$PHPMYADMIN_HOME  
-        chown -R nginx:nginx $PHPMYADMIN_HOME
+        chown -R www-data:www-data $PHPMYADMIN_HOME
     fi 
 }    
 
@@ -82,7 +86,7 @@ setup_wordpress(){
             mv $WORDPRESS_HOME /home/bak/wordpress_bak$(date +%s)            
         done
         GIT_REPO=${GIT_REPO:-https://github.com/azureappserviceoss/wordpress-azure}
-	    GIT_BRANCH=${GIT_BRANCH:-linappupdate}
+	    GIT_BRANCH=${GIT_BRANCH:-linux-appservice-update}
 	    echo "INFO: ++++++++++++++++++++++++++++++++++++++++++++++++++:"
 	    echo "REPO: "$GIT_REPO
 	    echo "BRANCH: "$GIT_BRANCH
@@ -94,29 +98,23 @@ setup_wordpress(){
 		    echo "INFO: Checkout to "$GIT_BRANCH
 		    git fetch origin
 	        git branch --track $GIT_BRANCH origin/$GIT_BRANCH && git checkout $GIT_BRANCH
-	    fi       
-        #IF App settings of DB are exist, Use Special wp-config file.    
-        if [ "${DATABASE_TYPE}" == "local" ]; then        
-            cp $WORDPRESS_SOURCE/wp-config.php $WORDPRESS_HOME/ && chmod 777 $WORDPRESS_HOME/wp-config.php        
-        else
-            if [ $DATABASE_HOST ]; then
-                echo "INFO: External Mysql is used."                
-                # show_wordpress_db_config
-                cp $WORDPRESS_SOURCE/wp-config.php $WORDPRESS_HOME/ && chmod 777 $WORDPRESS_HOME/wp-config.php            
-            fi        
-        fi        		        
+	    fi
+
+	#remove .git
+        rm  -rf $WORDPRESS_HOME/.git
+        
     else
         echo "INFO: There is one wordpress exist, no need to GIT pull again."
     fi
 	
 	# Although in AZURE, we still need below chown cmd.
-    chown -R nginx:nginx $WORDPRESS_HOME    
+    chown -R www-data:www-data $WORDPRESS_HOME
 }
 
 update_localdb_config(){    
 	DATABASE_HOST=${DATABASE_HOST:-127.0.0.1}
 	DATABASE_NAME=${DATABASE_NAME:-azurelocaldb}    
-    export DATABASE_HOST DATABASE_NAME DATABASE_USERNAME DATABASE_PASSWORD    
+    export DATABASE_HOST DATABASE_NAME DATABASE_USERNAME DATABASE_PASSWORD   
 }
 
 echo "Setup openrc ..." && openrc && touch /run/openrc/softlevel
@@ -146,11 +144,13 @@ if [ "${DATABASE_TYPE}" == "local" ]; then
     echo "phpmyadmin password:" $DATABASE_PASSWORD
     echo "INFO: ++++++++++++++++++++++++++++++++++++++++++++++++++:"
     mysql -u root -e "GRANT ALL ON *.* TO \`$DATABASE_USERNAME\`@'localhost' IDENTIFIED BY '$DATABASE_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+    # create default database 'azurelocaldb'
+    mysql -u root -e "CREATE DATABASE IF NOT EXISTS azurelocaldb; FLUSH PRIVILEGES;"
     echo "INFO: local MariaDB is used."
     update_localdb_config
     # show_wordpress_db_config
     echo "Creating database for WordPress if not exists ..."
-    chown -R mysql:mysql $MARIADB_DATA_DIR && mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`$DATABASE_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
+	mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`$DATABASE_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
 	echo "Granting user for WordPress ..."
 	mysql -u root -e "GRANT ALL ON \`$DATABASE_NAME\`.* TO \`$DATABASE_USERNAME\`@\`$DATABASE_HOST\` IDENTIFIED BY '$DATABASE_PASSWORD'; FLUSH PRIVILEGES;"        
 fi
@@ -160,12 +160,6 @@ if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
 	echo "INFO: $WORDPRESS_HOME/wp-config.php not found."    
 	echo "Installing WordPress for the first time ..." 
 	setup_wordpress
-fi
-
-chmod 777 $WORDPRESS_SOURCE/wp-config.php
-if [ ! $AZURE_DETECTED ]; then 
-    echo "INFO: NOT in Azure, chown for wp-config.php"
-    chown -R nginx:nginx $WORDPRESS_SOURCE/wp-config.php
 fi
 
 if [  -e "$WORDPRESS_HOME/wp-config.php" ]; then
@@ -179,10 +173,22 @@ if [  -e "$WORDPRESS_HOME/wp-config.php" ]; then
     fi
 fi
 
+# set permalink as 'Day and Name' and default, it has best performance with nginx re_write config.
+# PERMALINK_DETECTED=$(grep "\$wp_rewrite->set_permalink_structure" $WORDPRESS_HOME/wp-settings.php)
+# if [ ! $PERMALINK_DETECTED ];then
+#     echo "INFO: Set Permalink..."
+#     init_string="do_action( 'init' );"
+#     sed -i "/$init_string/r $WORDPRESS_SOURCE/permalink-settings.txt" $WORDPRESS_HOME/wp-settings.php
+#     init_row=$(grep "$init_string" -n $WORDPRESS_HOME/wp-settings.php | head -n 1 | cut -d ":" -f1)
+#     sed -i "${init_row}d" $WORDPRESS_HOME/wp-settings.php
+# else
+#     echo "INFO: Permalink setting is exist!"
+# fi
+
 # setup server root
 if [ ! $AZURE_DETECTED ]; then 
     echo "INFO: NOT in Azure, chown for "$WORDPRESS_HOME 
-    chown -R nginx:nginx $WORDPRESS_HOME
+    chown -R www-data:www-data $WORDPRESS_HOME
 fi
 
 echo "Starting Redis ..."
@@ -193,19 +199,11 @@ if [ ! $AZURE_DETECTED ]; then
     crond	
 fi 
 
-#
-# Remove symlinks to /home/LogFiles
-#
-echo "Removing symlinks to /home/LogFiles"
-unlink /var/log/nginx
-unlink /var/log/mysql
-unlink /var/log/supervisor
-
 test ! -d "$SUPERVISOR_LOG_DIR" && echo "INFO: $SUPERVISOR_LOG_DIR not found. creating ..." && mkdir -p "$SUPERVISOR_LOG_DIR"
-test ! -d "$NGINX_LOG_DIR" && echo "INFO: Log folder for $NGINX_LOG_DIR not found. creating..." && mkdir -p "$NGINX_LOG_DIR"
+test ! -d "$NGINX_LOG_DIR" && echo "INFO: Log folder for nginx/php not found. creating..." && mkdir -p "$NGINX_LOG_DIR"
 test ! -e /home/50x.html && echo "INFO: 50x file not found. createing..." && cp /usr/share/nginx/html/50x.html /home/50x.html
-# test -d "/home/etc/nginx" && mv /etc/nginx /etc/nginx-bak && ln -s /home/etc/nginx /etc/nginx
-# test ! -d "home/etc/nginx" && mkdir -p /home/etc && mv /etc/nginx /home/etc/nginx && ln -s /home/etc/nginx /etc/nginx
+test -d "/home/etc/nginx" && mv /etc/nginx /etc/nginx-bak && ln -s /home/etc/nginx /etc/nginx
+test ! -d "home/etc/nginx" && mkdir -p /home/etc && mv /etc/nginx /home/etc/nginx && ln -s /home/etc/nginx /etc/nginx
 
 #Just In Case, use external DB before, change to Local DB this time.
 if [ "$DATABASE_TYPE" == "local" ]; then
@@ -215,12 +213,12 @@ if [ "$DATABASE_TYPE" == "local" ]; then
     fi
 fi
 
-echo "INFO: creating /run/php/php-fpm.sock ..."
-test -e /run/php/php-fpm.sock && rm -f /run/php/php-fpm.sock
+echo "INFO: creating /run/php/php7.0-fpm.sock ..."
+test -e /run/php/php7.0-fpm.sock && rm -f /run/php/php7.0-fpm.sock
 mkdir -p /run/php
-touch /run/php/php-fpm.sock
-chown nginx:nginx /run/php/php-fpm.sock
-chmod 777 /run/php/php-fpm.sock
+touch /run/php/php7.0-fpm.sock
+chown www-data:www-data /run/php/php7.0-fpm.sock
+chmod 777 /run/php/php7.0-fpm.sock
 
 sed -i "s/SSH_PORT/$SSH_PORT/g" /etc/ssh/sshd_config
 echo "Starting SSH ..."

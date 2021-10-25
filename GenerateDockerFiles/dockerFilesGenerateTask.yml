@@ -71,7 +71,7 @@ steps:
   displayName: 'Generate Wordpress Docker Files'
   inputs:
     scriptPath: ./GenerateDockerFiles/wordpress/generateDockerfiles.sh
-    args: $(Build.ArtifactStagingDirectory) ${{ parameters.baseImageName }} ${{ parameters.baseImageVersion }} ${{ parameters.appSvcGitUrl }} $(System.DefaultWorkingDirectory)/Config
+    args: $(Build.ArtifactStagingDirectory) $(System.DefaultWorkingDirectory)/Config
 
 - task: ShellScript@2
   displayName: 'Generate KuduLite Docker Files'

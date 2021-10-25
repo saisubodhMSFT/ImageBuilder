@@ -288,35 +288,6 @@ RUN set -ex \
 	&& mkdir -p /etc/logrotate.d \
 	#remove unnecessary mariadb config files
 	&& rm /etc/my.cnf 
-	 
-# ssh
-COPY sshd_config /etc/ssh/ 
-# php
-COPY php.ini /usr/local/etc/php/php.ini
-COPY php_conf/. /usr/local/etc/php/conf.d/
-COPY php_fpm_conf/. /usr/local/etc/php-fpm.d/
-COPY php-fpm.conf /usr/local/etc/
-# nginx
-COPY nginx_conf/nginx.conf /etc/nginx/nginx.conf
-COPY nginx_conf/default.conf /etc/nginx/conf.d/default.conf
-COPY nginx_conf/spec-settings.conf /etc/nginx/conf.d/spec-settings.conf
-# mariadb
-COPY mariadb.cnf /etc/mysql/my.cnf
-# COPY my.cnf /etc/my.cnf
-# phpmyadmin
-COPY phpmyadmin_src/. $PHPMYADMIN_SOURCE/
-# log rotater
-COPY logrotate.conf /etc/logrotate.conf
-RUN chmod 444 /etc/logrotate.conf
-COPY logrotate.d/. /etc/logrotate.d/
-RUN chmod -R 444 /etc/logrotate.d
-# supervisor
-COPY supervisord.conf /etc/
-# wordpress
-COPY wordpress_src/. $WORDPRESS_SOURCE/
-# php
-COPY uploads.ini /usr/local/etc/php/conf.d/
-
 
 # ====================
 # Download and Install
@@ -359,7 +330,34 @@ RUN set -ex \
 	&& apk upgrade \
 	&& rm -rf /var/cache/apk/* \
 	&& rm -rf /tmp/*
-
+	 
+# ssh
+COPY sshd_config /etc/ssh/ 
+# php
+COPY php.ini /usr/local/etc/php/php.ini
+COPY php_conf/. /usr/local/etc/php/conf.d/
+COPY php_fpm_conf/. /usr/local/etc/php-fpm.d/
+COPY php-fpm.conf /usr/local/etc/
+# nginx
+COPY nginx_conf/nginx.conf /etc/nginx/nginx.conf
+COPY nginx_conf/default.conf /etc/nginx/conf.d/default.conf
+COPY nginx_conf/spec-settings.conf /etc/nginx/conf.d/spec-settings.conf
+# mariadb
+COPY mariadb.cnf /etc/mysql/my.cnf
+# COPY my.cnf /etc/my.cnf
+# phpmyadmin
+COPY phpmyadmin_src/. $PHPMYADMIN_SOURCE/
+# log rotater
+COPY logrotate.conf /etc/logrotate.conf
+RUN chmod 444 /etc/logrotate.conf
+COPY logrotate.d/. /etc/logrotate.d/
+RUN chmod -R 444 /etc/logrotate.d
+# supervisor
+COPY supervisord.conf /etc/
+# wordpress
+COPY wordpress_src/. $WORDPRESS_SOURCE/
+# php
+COPY uploads.ini /usr/local/etc/php/conf.d/
 
 
 # =====

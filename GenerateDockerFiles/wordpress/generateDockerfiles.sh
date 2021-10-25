@@ -13,10 +13,8 @@ declare -r DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 # Directory for Generated Docker Files
 declare -r STACK_NAME="wordpress"
 declare -r SYSTEM_ARTIFACTS_DIR="$1"
-#declare -r BASE_IMAGE_REPO_NAME="$2/${STACK_NAME}"                 # mcr.microsoft.com/oryx/php
-#declare -r BASE_IMAGE_VERSION="$3"                                 # Base Image Version; Oryx Version : 20190819.2
-#declare -r APPSVC_REPO="$4/${STACK_NAME}.git"                      # https://github.com/Azure-App-Service/php.git
-declare -r CONFIG_DIR="$5"                                         # ${Current_Repo}/Config
+declare -r BASE_IMAGE_REPO_NAME="php"
+declare -r CONFIG_DIR="$2"                                         # ${Current_Repo}/Config
 declare -r APP_SVC_REPO_DIR="$SYSTEM_ARTIFACTS_DIR/$STACK_NAME/GitRepo"
 declare -r APP_SVC_REPO_BRANCH="dev"
 
@@ -25,23 +23,22 @@ function generateDockerFiles()
     local stackVersionsMapFilePath="${CONFIG_DIR}/${STACK_NAME}VersionTemplateMap.txt"
 
     # Example line:
-    # 1.0 -> uses Oryx Base Image mcr.microsoft.com/oryx/php:1.0-$BASE_IMAGE_VERSION
+    # 1.2 -> uses PHP Base Image php:8.0.11-fpm-alpine3.13
     while IFS=, read -r STACK_VERSION BASE_IMAGE STACK_VERSION_TEMPLATE_DIR STACK_TAGS || [[ -n $STACK_VERSION ]] || [[ -n $BASE_IMAGE ]] || [[ -n $STACK_VERSION_TEMPLATE_DIR ]] || [[ -n $STACK_TAGS ]]
     do
 
-        IMAGE_NAME="${STACK_NAME}/${STACK_VERSION}"
+        BASE_IMAGE_NAME="${BASE_IMAGE_REPO_NAME}:${BASE_IMAGE}"
         CURR_VERSION_DIRECTORY="${APP_SVC_REPO_DIR}/${STACK_VERSION}"
         TARGET_DOCKERFILE="${CURR_VERSION_DIRECTORY}/Dockerfile"
 
-        echo "Generating App Service Dockerfile and dependencies for image '${IMAGE_NAME}' in directory '$CURR_VERSION_DIRECTORY'..."
+        echo "Generating App Service Dockerfile and dependencies for image '${BASE_IMAGE_NAME}' in directory '$CURR_VERSION_DIRECTORY'..."
 
-        # Remove Existing Version directory, eg: GitRepo/1.0 to replace with realized files
-        #rm -rf "$CURR_VERSION_DIRECTORY"
+        #create directory for current tag's source files
         mkdir -p "$CURR_VERSION_DIRECTORY"
         cp -R ${DIR}/${STACK_VERSION_TEMPLATE_DIR}/* "$CURR_VERSION_DIRECTORY"
 	echo "$CURR_VERSION_DIRECTORY"
         # Replace placeholders, changing sed delimeter since '/' is used in path
-        sed -i "s|BASE_IMAGE_NAME_PLACEHOLDER|$BASE_IMAGE|g" "$TARGET_DOCKERFILE"
+        sed -i "s|BASE_IMAGE_NAME_PLACEHOLDER|$BASE_IMAGE_NAME|g" "$TARGET_DOCKERFILE"
         echo "Done."
 
     done < "$stackVersionsMapFilePath"
