@@ -27,23 +27,25 @@ setup_mariadb_data_dir(){
 }
 
 start_mariadb(){
-    #Alternate Mariadb Setup
-    #if test ! -e /run/mysqld/mysqld.sock; then
-    #    touch /run/mysqld/mysqld.sock
-    #fi
-    #chmod 777 /run/mysqld/mysqld.sock
-    #mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
-    #/usr/bin/mysqld --user=mysql &
     
-    /etc/init.d/mariadb setup
-    rc-service mariadb start
+    if test ! -e /run/mysqld/mysqld.sock; then
+        touch /run/mysqld/mysqld.sock
+    fi
+    chmod 777 /run/mysqld/mysqld.sock
+    mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+    /usr/bin/mysqld --user=mysql &
+    
+    #Alternate Mariadb Setup
+    #/etc/init.d/mariadb setup --datadir=MARIADB_DATA_DIR
+    #rc-service mariadb start
 
-    rm -f /tmp/mysql.sock
-    ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
+    #rm -f /tmp/mysql.sock
+    #ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
 
     # create default database 'azurelocaldb'
-    mysql -u root -e "CREATE DATABASE IF NOT EXISTS azurelocaldb; FLUSH PRIVILEGES;"
+    #mysql -u root -e "CREATE DATABASE IF NOT EXISTS azurelocaldb; FLUSH PRIVILEGES;"
     # make sure mysql service is started...
+    
     port=`netstat -nlt|grep 3306|wc -l`
     process=`ps -ef |grep mysql|grep -v grep |wc -l`
     try_count=1
@@ -86,7 +88,7 @@ setup_wordpress(){
             mv $WORDPRESS_HOME /home/bak/wordpress_bak$(date +%s)            
         done
         GIT_REPO=${GIT_REPO:-https://github.com/azureappserviceoss/wordpress-azure}
-	    GIT_BRANCH=${GIT_BRANCH:-linux-appservice-update}
+	    GIT_BRANCH=${GIT_BRANCH:-linux-appservice}
 	    echo "INFO: ++++++++++++++++++++++++++++++++++++++++++++++++++:"
 	    echo "REPO: "$GIT_REPO
 	    echo "BRANCH: "$GIT_BRANCH
