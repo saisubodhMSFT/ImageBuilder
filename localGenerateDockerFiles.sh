@@ -11,7 +11,7 @@ rm -rf $artifactStagingDirectory
 
 # Generate Node Docker Files
 chmod u+x GenerateDockerFiles/node/generateDockerfiles.sh
-GenerateDockerFiles/node/generateDockerfiles.sh $artifactStagingDirectory $configDir
+GenerateDockerFiles/node/generateDockerfiles.sh $artifactStagingDirectory $baseImageName $baseImageVersion $appSvcGitUrl $configDir
 
 # Generate .NET Core Docker Files
 chmod u+x GenerateDockerFiles/dotnetcore/generateDockerfiles.sh 
@@ -35,7 +35,7 @@ GenerateDockerFiles/ruby/generateDockerfiles.sh $artifactStagingDirectory $appSv
 
 #Generate Wordpress images
 chmod u+x GenerateDockerFiles/wordpress/generateDockerfiles.sh
-GenerateDockerFiles/wordpress/generateDockerfiles.sh $artifactStagingDirectory $baseImageName $baseImageVersion $appSvcGitUrl $configDir
+GenerateDockerFiles/wordpress/generateDockerfiles.sh $artifactStagingDirectory $configDir
 
 # Generate KuduLite Docker Files
 chmod u+x GenerateDockerFiles/KuduLite/generateDockerfiles.sh 

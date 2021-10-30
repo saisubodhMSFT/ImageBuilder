@@ -42,10 +42,10 @@ function buildDockerImage()
                 # Build Image Tags are converted to lower case because docker doesn't accept upper case tags
                 local MCRRepoTagUpperCase="${WAWS_IMAGE_REPO_NAME}/public/appsvc/${STACK_MOD}:${TAG}_${PIPELINE_BUILD_NUMBER}"
                 local MCRRepoTag="${MCRRepoTagUpperCase,,}"
-                local appSvcDockerfilePath="${SYSTEM_ARTIFACTS_DIR}/${STACK}/GitRepo/${STACK_VERSION}/Dockerfile"              
-	        local BuildVerRepoTagUpperCase="${WAWS_IMAGE_REPO_NAME}/${STACK_MOD}:${TAG}_${PIPELINE_BUILD_NUMBER}"
-	        local BuildVerRepoTag="${BuildVerRepoTagUpperCase,,}"
-		
+                local appSvcDockerfilePath="${SYSTEM_ARTIFACTS_DIR}/${STACK}/GitRepo/${STACK_VERSION}/Dockerfile"
+                local BuildVerRepoTagUpperCase="${WAWS_IMAGE_REPO_NAME}/${STACK_MOD}:${TAG}_${PIPELINE_BUILD_NUMBER}"
+                local BuildVerRepoTag="${BuildVerRepoTagUpperCase,,}"
+
                 echo "Listing artifacts dir"
                 ls "${SYSTEM_ARTIFACTS_DIR}"
                 echo "Listing stacks dir"
@@ -56,8 +56,8 @@ function buildDockerImage()
 
                 # php-xdebug depends of published images
                 if [ "$BUILD_REASON" != "PullRequest" ] || [ "$STACK" != "php-xdebug" ]; then
-                    echo "docker build -t '$BuildVerRepoTag' -f '$appSvcDockerfilePath' ."
-                    docker build -t $BuildVerRepoTag -f "$appSvcDockerfilePath" .
+                    echo docker build -t "$BuildVerRepoTag" -f "$appSvcDockerfilePath" .
+                    docker build -t "$BuildVerRepoTag" -f "$appSvcDockerfilePath" .
                 elif [ "$BUILD_REASON" != "PullRequest" ] && [ "$STACK" == "php-xdebug" ]; then
                     # poll until php image is published
                     BASE_TAG=`head -n 1 Dockerfile | sed 's/FROM //g'`
