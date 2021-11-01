@@ -36,7 +36,7 @@ jobs:
   displayName: Generate DockerFiles
   dependsOn: Job_CleanUp
   pool:
-    vmImage: ubuntu-16.04
+    vmImage: ubuntu-18.04
   timeoutInMinutes: 100
   steps:
   - script: |
