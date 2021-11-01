@@ -68,6 +68,12 @@ steps:
     args: $(Build.ArtifactStagingDirectory) ${{ parameters.appSvcGitUrl }} $(System.DefaultWorkingDirectory)/Config
 
 - task: ShellScript@2
+  displayName: 'Generate Wordpress Docker Files'
+  inputs:
+    scriptPath: ./GenerateDockerFiles/wordpress/generateDockerfiles.sh
+    args: $(Build.ArtifactStagingDirectory) $(System.DefaultWorkingDirectory)/Config
+
+- task: ShellScript@2
   displayName: 'Generate KuduLite Docker Files'
   inputs:
     scriptPath: ./GenerateDockerFiles/KuduLite/generateDockerfiles.sh

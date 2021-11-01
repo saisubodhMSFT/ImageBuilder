@@ -34,10 +34,15 @@ function buildDockerImage()
                 then
                     STACK_MOD="php"
                 fi
+                
+                if [ "$STACK" == "wordpress" ]; then
+		        STACK_MOD="wordpress-alpine-php"
+		 fi
+
                 # Build Image Tags are converted to lower case because docker doesn't accept upper case tags
                 local MCRRepoTagUpperCase="${WAWS_IMAGE_REPO_NAME}/public/appsvc/${STACK_MOD}:${TAG}_${PIPELINE_BUILD_NUMBER}"
                 local MCRRepoTag="${MCRRepoTagUpperCase,,}"
-                local appSvcDockerfilePath="${SYSTEM_ARTIFACTS_DIR}/${STACK}/GitRepo/${STACK_VERSION}/Dockerfile" 
+                local appSvcDockerfilePath="${SYSTEM_ARTIFACTS_DIR}/${STACK}/GitRepo/${STACK_VERSION}/Dockerfile"
                 local BuildVerRepoTagUpperCase="${WAWS_IMAGE_REPO_NAME}/${STACK_MOD}:${TAG}_${PIPELINE_BUILD_NUMBER}"
                 local BuildVerRepoTag="${BuildVerRepoTagUpperCase,,}"
 
@@ -47,7 +52,6 @@ function buildDockerImage()
                 ls "${SYSTEM_ARTIFACTS_DIR}/${STACK}/GitRepo/${STACK_VERSION}"
                 cd "${SYSTEM_ARTIFACTS_DIR}/${STACK}/GitRepo/${STACK_VERSION}"
 
-                echo
                 echo "Building test image with tag '$BuildVerRepoTag' and file $appSvcDockerfilePath..."
 
                 # php-xdebug depends of published images
