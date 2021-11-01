@@ -75,6 +75,7 @@ steps:
 
 - task: ShellScript@2
   displayName: 'Generate KuduLite Docker Files'
+  continueOnError: true
   inputs:
     scriptPath: ./GenerateDockerFiles/KuduLite/generateDockerfiles.sh
     args: $(Build.ArtifactStagingDirectory) ${{ parameters.baseImageName }} ${{ parameters.baseImageVersion }} ${{ parameters.kuduliteInternalRepo }} $(System.DefaultWorkingDirectory)/Config
